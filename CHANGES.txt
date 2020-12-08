@@ -3,6 +3,7 @@
 ***************************************************************************
 3.0.0-yb-1
  * Add load balancing policy for YugaByte
+ * Support for jsonb columns
 
 2.5.0
  * LTS Release for Spark 2.4
