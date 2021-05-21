@@ -114,7 +114,18 @@ private[connector] class BoundStatementBuilder[T](
           columnValue = "null"
         }
       }
-      bindColumn(boundStatement, columnName, columnType, columnValue)
+      if (internalWriter.unknownColumnNameSet.contains(columnName)) {
+        // trim the leading / trailing single quote
+        if (columnValue.isInstanceOf[String]) {
+          var colVal = columnValue.asInstanceOf[String]
+          if (colVal.substring(0, 1) == "'") {
+            if (colVal.length < 2 || colVal.substring(colVal.length-1) != "'")
+              throw new IllegalArgumentException(s"There is no closing quote")
+            colVal = colVal.substring(1, colVal.length-1)
+          }
+          bindColumn(boundStatement, columnName, columnType, colVal)
+        } else bindColumn(boundStatement, columnName, columnType, columnValue)
+      } else bindColumn(boundStatement, columnName, columnType, columnValue)
       val serializedValue = boundStatement.stmt.getBytesUnsafe(i)
       if (serializedValue != null) bytesCount += serializedValue.remaining()
     }
